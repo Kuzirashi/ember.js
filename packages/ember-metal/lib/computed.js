@@ -31,100 +31,100 @@ function UNDEFINED() { }
 
 /**
   A computed property transforms a hash with object's accessor function(s) into a property.
-  
+
   By default the function backing the computed property will only be called
   once and the result will be cached. You can specify various properties
   that your computed property depends on. This will force the cached
   result to be recomputed if the dependencies are modified.
-  
+
   In the following example we declare a computed property - `fullName` - by calling
   `.Ember.computed()` with property dependencies (`firstName` and `lastName`) as leading arguments and getter accessor function. The `fullName` getter function
   will be called once (regardless of how many times it is accessed) as long
   as its dependencies have not changed. Once `firstName` or `lastName` are updated
   any future calls (or anything bound) to `fullName` will incorporate the new
   values.
-  
+
   ```javascript
   let Person = Ember.Object.extend({
     // these will be supplied by `create`
     firstName: null,
     lastName: null,
-  
+
     fullName: Ember.computed('firstName', 'lastName', function () {
       let firstName = this.get('firstName'),
           lastName  = this.get('lastName');
-  
+
       return firstName + ' ' + lastName;
     })
   });
-  
+
   let tom = Person.create({
     firstName: 'Tom',
     lastName: 'Dale'
   });
-  
+
   tom.get('fullName') // 'Tom Dale'
   ```
-  
+
   You can also define what Ember should do when setting a computed property by providing additional function (`set`) in hash argument.
   If you try to set a computed property, it will try to invoke setter accessor function with the key and
   value you want to set it to as arguments.
-  
+
   ```javascript
   let Person = Ember.Object.extend({
     // these will be supplied by `create`
     firstName: null,
     lastName: null,
-  
+
     fullName: Ember.computed('firstName', 'lastName', {
       get(key) {
         let firstName = this.get('firstName'),
             lastName  = this.get('lastName');
-  
+
         return firstName + ' ' + lastName;
       },
       set(key, value) {
         let [firstName, lastName] = value.split(' ');
-  
+
         this.set('firstName', firstName);
         this.set('lastName', lastName);
-  
+
         return value;
       }
     })
   });
-  
+
   let person = Person.create();
-  
+
   person.set('fullName', 'Peter Wagenet');
   person.get('firstName'); // 'Peter'
   person.get('lastName');  // 'Wagenet'
   ```
-  
+
   Be careful - if you try to set a computed property and it won't have setter accessor function defined you will overwrite computed property with normal property (no longer computed) that won't change if dependencies change.
-  
+
   You can also mark computed property as `.readOnly()` and block all attempts to set it.
-  
+
   ```javascript
   let Person = Ember.Object.extend({
     // these will be supplied by `create`
     firstName: null,
     lastName: null,
-  
+
     fullName: Ember.computed('firstName', 'lastName', {
       get(key) {
         let firstName = this.get('firstName'),
             lastName  = this.get('lastName');
-  
+
         return firstName + ' ' + lastName;
       }
     }).readOnly()
   });
-  
+
   let person = Person.create();
   person.set('fullName', 'Peter Wagenet'); // Uncaught Error: Cannot set read-only property "fullName" on object: <(...):emberXXX>
   ```
-  
+
   Additional resources:
   - [New CP syntax RFC](https://github.com/emberjs/rfcs/blob/master/text/0011-improved-cp-syntax.md)
   - [New computed syntax explained in "Ember 1.12 released" ](http://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
