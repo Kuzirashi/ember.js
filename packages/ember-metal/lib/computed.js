@@ -50,7 +50,7 @@ function UNDEFINED() { }
     firstName: null,
     lastName: null,
 
-    fullName: Ember.computed('firstName', 'lastName', function () {
+    fullName: Ember.computed('firstName', 'lastName', function() {
       let firstName = this.get('firstName'),
           lastName  = this.get('lastName');
 
@@ -113,8 +113,8 @@ function UNDEFINED() { }
 
     fullName: Ember.computed('firstName', 'lastName', {
       get(key) {
-        let firstName = this.get('firstName'),
-            lastName  = this.get('lastName');
+        let firstName = this.get('firstName');
+        let lastName  = this.get('lastName');
 
         return firstName + ' ' + lastName;
       }
@@ -176,10 +176,10 @@ var ComputedPropertyPrototype = ComputedProperty.prototype;
   invalidation and notification when cached value is invalidated.
 
   ```javascript
-  var outsideService = Ember.Object.extend({
-    value: function() {
+  let outsideService = Ember.Object.extend({
+    value: Ember.computed(function() {
       return OutsideService.getValue();
-    }.property().volatile()
+    }).volatile()
   }).create();
   ```
 
@@ -198,13 +198,13 @@ ComputedPropertyPrototype.volatile = function() {
   mode the computed property will throw an error when set.
 
   ```javascript
-  var Person = Ember.Object.extend({
-    guid: function() {
+  let Person = Ember.Object.extend({
+    guid: Ember.computed(function() {
       return 'guid-guid-guid';
-    }.property().readOnly()
+    }).readOnly()
   });
 
-  var person = Person.create();
+  let person = Person.create();
 
   person.set('guid', 'new-guid'); // will throw an exception
   ```
@@ -225,8 +225,8 @@ ComputedPropertyPrototype.readOnly = function() {
   arguments containing key paths that this computed property depends on.
 
   ```javascript
-  var President = Ember.Object.extend({
-    fullName: computed(function() {
+  let President = Ember.Object.extend({
+    fullName: Ember.computed(function() {
       return this.get('firstName') + ' ' + this.get('lastName');
 
       // Tell Ember that this computed property depends on firstName
@@ -234,7 +234,7 @@ ComputedPropertyPrototype.readOnly = function() {
     }).property('firstName', 'lastName')
   });
 
-  var president = President.create({
+  let president = President.create({
     firstName: 'Barack',
     lastName: 'Obama'
   });
@@ -278,10 +278,10 @@ ComputedPropertyPrototype.property = function() {
   You can pass a hash of these values to a computed property like this:
 
   ```
-  person: function() {
-    var personId = this.get('personId');
+  person: Ember.computed(function() {
+    let personId = this.get('personId');
     return App.Person.create({ id: personId });
-  }.property().meta({ type: App.Person })
+  }).meta({ type: App.Person })
   ```
 
   The hash that you pass to the `meta()` function will be saved on the
@@ -331,15 +331,15 @@ ComputedPropertyPrototype.didChange = function(obj, keyName) {
   Otherwise, call the function passing the property name as an argument.
 
   ```javascript
-  var Person = Ember.Object.extend({
-    fullName: function(keyName) {
+  let Person = Ember.Object.extend({
+    fullName: Ember.computed('firstName', 'lastName', function(keyName) {
       // the keyName parameter is 'fullName' in this case.
       return this.get('firstName') + ' ' + this.get('lastName');
-    }.property('firstName', 'lastName')
+    })
   });
 
 
-  var tom = Person.create({
+  let tom = Person.create({
     firstName: 'Tom',
     lastName: 'Dale'
   });
@@ -390,35 +390,35 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
   the value of the property to the value being set.
 
   Generally speaking if you intend for your computed property to be set
-  your backing function should accept either two or three arguments.
+  you should pass `set(key, value)` function in hash as argument to `Ember.computed()` along with `get(key)` function.
 
   ```javascript
-  var Person = Ember.Object.extend({
+  let Person = Ember.Object.extend({
     // these will be supplied by `create`
     firstName: null,
     lastName: null,
 
-    fullName: function(key, value, oldValue) {
+    fullName: Ember.computed('firstName', 'lastName', {
       // getter
-      if (arguments.length === 1) {
-        var firstName = this.get('firstName');
-        var lastName = this.get('lastName');
+      get() {
+        let firstName = this.get('firstName');
+        let lastName = this.get('lastName');
 
         return firstName + ' ' + lastName;
-
+      },
       // setter
-      } else {
-        var name = value.split(' ');
+      set(key, value) {
+        let [firstName, lastName] = value.split(' ');
 
-        this.set('firstName', name[0]);
-        this.set('lastName', name[1]);
+        this.set('firstName', firstName);
+        this.set('lastName', lastName);
 
         return value;
       }
-    }.property('firstName', 'lastName')
+    })
   });
 
-  var person = Person.create();
+  let person = Person.create();
 
   person.set('fullName', 'Peter Wagenet');
   person.get('firstName'); // 'Peter'
@@ -428,7 +428,6 @@ ComputedPropertyPrototype.get = function(obj, keyName) {
   @method set
   @param {String} keyName The key being accessed.
   @param {Object} newValue The new value being assigned.
-  @param {String} oldValue The old value being replaced.
   @return {Object} The return value of the function backing the CP.
   @public
 */
@@ -538,15 +537,17 @@ ComputedPropertyPrototype.teardown = function(obj, keyName) {
   computed property function. You can use this helper to define properties
   with mixins or via `Ember.defineProperty()`.
 
-  The function you pass will be used to both get and set property values.
-  The function should accept two parameters, key and value. If value is not
-  undefined you should set the value first. In either case return the
+  If you pass function as argument - it will be used as getter.
+  You can pass hash with two functions - instead of single function - as argument to provide both getter and setter.
+
+  The `get` function should accept two parameters, `key` and `value`. If `value` is not
+  undefined you should set the `value` first. In either case return the
   current value of the property.
 
   A computed property defined in this way might look like this:
 
   ```js
-  var Person = Ember.Object.extend({
+  let Person = Ember.Object.extend({
     firstName: 'Betty',
     lastName: 'Jones',
 
@@ -555,7 +556,7 @@ ComputedPropertyPrototype.teardown = function(obj, keyName) {
     })
   });
 
-  var client = Person.create();
+  let client = Person.create();
 
   client.get('fullName'); // 'Betty Jones'
 
@@ -573,7 +574,7 @@ ComputedPropertyPrototype.teardown = function(obj, keyName) {
   (if prototype extensions are enabled, which is the default behavior):
 
   ```js
-  fullName: function () {
+  fullName() {
     return this.get('firstName') + ' ' + this.get('lastName');
   }.property('firstName', 'lastName')
   ```
