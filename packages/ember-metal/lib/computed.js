@@ -30,7 +30,7 @@ function UNDEFINED() { }
 //
 
 /**
-  A computed property transforms a hash with object's accessor function(s) into a property.
+  A computed property transforms an object literal with object's accessor function(s) into a property.
 
   By default the function backing the computed property will only be called
   once and the result will be cached. You can specify various properties
@@ -101,7 +101,7 @@ function UNDEFINED() { }
   person.get('lastName');  // 'Wagenet'
   ```
 
-  Be careful - if you try to set a computed property and it won't have setter accessor function defined you will overwrite computed property with normal property (no longer computed) that won't change if dependencies change.
+  You can overwrite computed property with normal property (no longer computed), that won't change if dependencies change, if you set computed property and it won't have setter accessor function defined.
 
   You can also mark computed property as `.readOnly()` and block all attempts to set it.
 
