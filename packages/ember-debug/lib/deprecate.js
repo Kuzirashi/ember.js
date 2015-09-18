@@ -3,6 +3,7 @@
 import Ember from 'ember-metal/core';
 import EmberError from 'ember-metal/error';
 import Logger from 'ember-metal/logger';
+import isPlainFunction from 'ember-debug/is-plain-function';
 
 import { registerHandler as genericRegisterHandler, invoke } from 'ember-debug/handlers';
 
@@ -87,7 +88,7 @@ export let missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you 
   @param {String} message A description of the deprecation.
   @param {Boolean|Function} test A boolean. If falsy, the deprecation
     will be displayed. If this is a function, it will be executed and its return
-    value will be used as condition.
+    value will be used as condition, but it is deprecated behavior.
   @param {Object} options An object that can be used to pass
     in a `url` to the transition guide on the emberjs.com website, and a unique
     `id` for this deprecation. The `id` can be used by Ember debugging tools

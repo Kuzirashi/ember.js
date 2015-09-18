@@ -16,6 +16,7 @@ import _warn, {
   registerHandler as registerWarnHandler
 } from 'ember-debug/warn';
 import isPlainFunction from 'ember-debug/is-plain-function';
+import { testAsFunctionDeprecation } from 'ember-debug/handlers';
 
 /**
 @module ember
@@ -50,9 +51,15 @@ import isPlainFunction from 'ember-debug/is-plain-function';
   @public
 */
 setDebugFunction('assert', function assert(desc, test) {
-  var throwAssertion;
+  let throwAssertion;
 
   if (isPlainFunction(test)) {
+    deprecate(
+      testAsFunctionDeprecation,
+      false,
+      { id: 'ember-debug.deprecate-test-as-function', until: '3.0.0' }
+    );
+
     throwAssertion = !test();
   } else {
     throwAssertion = !test;

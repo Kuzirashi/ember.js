@@ -25,7 +25,8 @@ export let missingOptionsIdDeprecation = 'When calling `Ember.warn` you must pro
   @method warn
   @param {String} message A warning to display.
   @param {Boolean} test An optional boolean. If falsy, the warning
-    will be displayed.
+    will be displayed. If this is a function, it will be executed and its return
+    value will be used as condition, but it is deprecated behavior
   @public
 */
 export default function warn(message, test, options) {
